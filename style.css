@@ -1,0 +1,70 @@
+body {
+  background-color: #062F38;
+  display: flex;
+  justify-content: space-between;
+  overflow-x: hidden; overflow-y: hidden;
+  width: 99vw; height: 100vh;
+}
+
+.status {
+  background-color: #306472;
+  width: 15%;
+  height: 99%;
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 69%;
+  height: 99%;
+}
+
+
+/* main */
+
+.board__main {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  background-color: #226472;
+  width: 100%;
+  height: 49.5%;
+}
+
+.main__cell {
+  display: block;
+  width: 95%;
+  height: 95%;
+  background-color: #099c74;
+}
+
+
+
+/* enemy */
+.board__enemy {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+  background-color: #074957;
+  width: 100%;
+  height: 49.5%;
+}
+
+.enemy__cell {
+  display: block;
+  width: 95%;
+  height: 95%;
+  background-color: #09829c;
+}
+
+.enemy__cell:hover {
+  opacity: 0.7;
+  width: 90%;
+  height: 90%;
+}
+
+/* 
+.main__cell:hover {
+  opacity: 0.7;
+  width: 90%;
+  height: 90%;
+} */
