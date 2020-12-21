@@ -39,6 +39,13 @@ body {
 }
 
 
+/* ship */
+
+.ship {
+  background-color: #cfe9ff;
+}
+
+
 
 /* enemy */
 .board__enemy {
@@ -68,3 +75,10 @@ body {
   width: 90%;
   height: 90%;
 } */
+
+
+/* killed */
+
+.dead {
+  background-color: #f54545;
+}
