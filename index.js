@@ -75,6 +75,7 @@ let shiftDirection = {
 
 function initializationGameData () {
   mainPlayer.force.push({size: 2}, {size: 2}, {size: 3}, {size: 4}, {size: 5});
+  enemyPlayer.force.push({size: 2}, {size: 2}, {size: 3}, {size: 4}, {size: 5});
 }
 
 // end
@@ -94,6 +95,7 @@ document.querySelector('.board__enemy').addEventListener('mouseover', function (
     }
     eIndex++;
   }
+
 
 })
 
@@ -115,7 +117,7 @@ function generateCurrentShip (ship, board) {
   let done = false;
   
   while (!done) {
-    let start = getRandomStartPosition(board);
+    let start = getRandomPosition(board);
     let shipDirection = Math.round(Math.random() * 3);
     console.log(done);
 
@@ -140,21 +142,17 @@ function generateCurrentShip (ship, board) {
 
     let curPos = start;
     board[curPos] = 1;
-    document.querySelector('.board__main').children[curPos].classList.add('ship');
 
     for(let i = 1; i < ship.size; i++) {
       curPos = shiftToNumberDirection(curPos, shipDirection);
       board[curPos] = 1;
-      if(board === mainBoard) {
-        document.querySelector('.board__main').children[curPos].classList.add('ship');
-      }
 
     }
     done = true;
   }
 }
 
-function getRandomStartPosition (board) {
+function getRandomPosition (board) {
   let start = 0;
   do {
     start = Math.round(Math.random() * 128);
@@ -236,13 +234,58 @@ function renderBoard(player) {
   })
 }
 
+// end
+////////////////////////////////
+
+///////////////////////////////////
+// main turn
+
+enemyPlayer.boardHTML.addEventListener('click', (e) => {
+  if(e.target === enemyPlayer.boardHTML) {
+    return;
+  }
+  
+  let eIndex = 0;
+  for (index of enemyPlayer.boardHTML.children) {
+    if (index === e.target) {
+      break;
+    }
+    eIndex++;
+  }
+
+  e.target.classList.add('miss');
+  if(enemyPlayer.board[eIndex] == 0) {
+  }
+
+  if(enemyPlayer.board[eIndex] == 1) {
+    e.target.classList.add('dead');
+  }
+  enemyTurn();
+})
+
+
+// end
+////////////////////////////////
+
+/////////////////////////////////
+// Enemy turn
+
+function enemyTurn() {
+  let shot = Math.round(Math.random() * 128);
+  if(mainPlayer.board[shot] == 1) {
+    mainPlayer.boardHTML.children[shot].classList.add('dead');
+  } else if(mainPlayer.board[shot] == 2) {
+    enemyTurn(); return;
+  } else if (mainPlayer.board[shot] == 0) {
+    if(mainPlayer.boardHTML.children[shot].classList.contains('miss')) {enemyTurn(); return};
+    mainPlayer.boardHTML.children[shot].classList.add('miss');
+  }
+}
+
 
 
 
 initializationGameData();
-
-setInterval(() => {
-  generateRandomShips(mainPlayer);
-  setTimeout(()=>{clearBoard(mainPlayer.board);
-  renderBoard(mainPlayer);}, 1000)
-}, 2000)
+generateRandomShips(mainPlayer);
+generateRandomShips(enemyPlayer);
+renderBoard(mainPlayer);

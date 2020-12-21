@@ -42,7 +42,7 @@ body {
 /* ship */
 
 .ship {
-  background-color: #cfe9ff;
+  background-color: #96b5b5;
 }
 
 
@@ -75,6 +75,13 @@ body {
   width: 90%;
   height: 90%;
 } */
+
+
+/* missed */
+
+.miss {
+  background-color: #aef5f0;
+}
 
 
 /* killed */
