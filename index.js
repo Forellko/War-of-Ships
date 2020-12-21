@@ -5,51 +5,45 @@
 ////////////////////////////////////////////////////////////////
 // initialization
 
-let enemyBoard = [
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-]
-
-let mainBoard = [
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-]
-
-let mainShips = [
-]
-
-let enemyShips = [
-]
-
-let ship = {
-  size: 0,
-  position: [],
+let player = {
+  board: [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  ],
+  boardHTML: null,
+  force: [],
+  
 }
 
 let mainPlayer = {
-  board: mainBoard,
-  force: mainShips,
   boardHTML: document.querySelector('.board__main'),
-}
+  __proto__: player,
+};
 
 let enemyPlayer = {
-  board: enemyBoard,
-  force: enemyShips,
   boardHTML: document.querySelector('.board__enemy'),
+  __proto__: player,
+};
+
+function Ship(size = 2) {
+  this.size = size;
+  this.position = [];
+  this.isAlive = true;
+  this.setPosition = function (position) {
+    for (const iterator of position) {
+      this.position.push({position: iterator, isBroken: false});
+    }
+  }
+  this.hitted = function (position) {
+    
+  }
 }
 
 let shiftDirection = {
@@ -74,30 +68,11 @@ let shiftDirection = {
 // Initialization parametrs
 
 function initializationGameData () {
-  mainPlayer.force.push({size: 2}, {size: 2}, {size: 3}, {size: 4}, {size: 5});
-  enemyPlayer.force.push({size: 2}, {size: 2}, {size: 3}, {size: 4}, {size: 5});
+  mainPlayer.force.push(new Ship(size = 3, position = [7,8,9]));
 }
 
 // end
 ////////////////////////////////////////////////////////////////
-
-
-document.querySelector('.board__enemy').addEventListener('mouseover', function (e) {
-  if(e.target === this) {
-    return;
-  }
-
-  let eIndex = 0;
-
-  for (index of this.children) {
-    if (index === e.target) {
-      break;
-    }
-    eIndex++;
-  }
-
-
-})
 
 //////////////////////////////////////////////
 // Создание кораблей
@@ -146,7 +121,7 @@ function generateCurrentShip (ship, board) {
     for(let i = 1; i < ship.size; i++) {
       curPos = shiftToNumberDirection(curPos, shipDirection);
       board[curPos] = 1;
-
+      ship.position.push(curPos);
     }
     done = true;
   }
@@ -241,10 +216,11 @@ function renderBoard(player) {
 // main turn
 
 enemyPlayer.boardHTML.addEventListener('click', (e) => {
-  if(e.target === enemyPlayer.boardHTML) {
-    return;
-  }
-  
+  if(e.target === enemyPlayer.boardHTML) return;
+  if(e.target.classList.contains('miss')) return;
+  if(e.target.classList.contains('dead')) return;
+
+
   let eIndex = 0;
   for (index of enemyPlayer.boardHTML.children) {
     if (index === e.target) {
@@ -286,6 +262,6 @@ function enemyTurn() {
 
 
 initializationGameData();
-generateRandomShips(mainPlayer);
-generateRandomShips(enemyPlayer);
-renderBoard(mainPlayer);
+// generateRandomShips(mainPlayer);
+// generateRandomShips(enemyPlayer);
+// renderBoard(mainPlayer);
