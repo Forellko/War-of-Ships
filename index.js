@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////
 // initialization
 
-let player = {
+let mainPlayer = {
   board: [
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -17,32 +17,83 @@ let player = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   ],
-  boardHTML: null,
   force: [],
-  
-}
-
-let mainPlayer = {
   boardHTML: document.querySelector('.board__main'),
-  __proto__: player,
 };
 
 let enemyPlayer = {
+  board: [
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  ],
+  force: [],
   boardHTML: document.querySelector('.board__enemy'),
-  __proto__: player,
 };
 
-function Ship(size = 2) {
+function Ship(player, size) {
   this.size = size;
+  this.player = player;
   this.position = [];
   this.isAlive = true;
   this.setPosition = function (position) {
     for (const iterator of position) {
-      this.position.push({position: iterator, isBroken: false});
+      this.position.push({pos: iterator, isBroken: false});
     }
   }
   this.hitted = function (position) {
-    
+    for (const iterator of this.position) {
+      if(iterator.isBroken) {
+        continue;
+      }
+
+      if(iterator.pos === position) {
+        iterator.isBroken = true;
+        this.isAlive = this.checkAlive();
+        if( this.isAlive ) { return }
+      }
+    }
+    this.dead();
+  }
+  this.checkAlive = function() {
+    for (const iterator of this.position) {
+      if(!iterator.isBroken) {
+        return true;
+      }
+    }
+    return false;
+  }
+  this.dead = function() {
+    for (const iterator of this.position) {
+      this.player.boardHTML.children[shiftDirection.top(iterator.pos)].classList.add('miss');
+      this.player.boardHTML.children[shiftDirection.top(iterator.pos - 1)] .classList.add('miss');
+      this.player.boardHTML.children[shiftDirection.top(iterator.pos + 1)].classList.add('miss');
+      this.player.boardHTML.children[shiftDirection.bottom(iterator.pos)].classList.add('miss');
+      this.player.boardHTML.children[shiftDirection.bottom(iterator.pos - 1)].classList.add('miss');
+      this.player.boardHTML.children[shiftDirection.bottom(iterator.pos + 1)].classList.add('miss');
+      this.player.boardHTML.children[shiftDirection.left(iterator.pos)].classList.add('miss');
+      this.player.boardHTML.children[shiftDirection.right(iterator.pos)].classList.add('miss');
+      this.player.boardHTML.children[iterator.pos].classList.remove('miss');
+    }
+    renderBoard(this.player);
+    this.amILast();
+  }
+  this.amILast = function () {
+    for (const ship of this.player.force) {
+      if(ship.isAlive) { return }
+    }
+    if(this.player == mainPlayer) {
+      alert("Lose");
+    } else {
+      alert("Victory!");
+    }
+      initializationGameData();
   }
 }
 
@@ -68,7 +119,34 @@ let shiftDirection = {
 // Initialization parametrs
 
 function initializationGameData () {
-  mainPlayer.force.push(new Ship(size = 3, position = [7,8,9]));
+
+  mainPlayer.force = []; mainPlayer.board.fill(0);
+  for (const iterator of mainPlayer.boardHTML.children) {
+    iterator.classList.remove('miss'); iterator.classList.remove('ship'); iterator.classList.remove('dead');
+  }
+  
+  mainPlayer.force.push(new Ship(mainPlayer, 2), new Ship(mainPlayer, 2));
+  mainPlayer.force.push(new Ship(mainPlayer, 3), new Ship(mainPlayer, 3),);
+  mainPlayer.force.push(new Ship(mainPlayer, 4));
+
+  generateRandomShips(mainPlayer);
+
+  renderBoard(mainPlayer);
+  
+
+  enemyPlayer.force = []; enemyPlayer.board.fill(0);
+  for (const iterator of enemyPlayer.boardHTML.children) {
+    iterator.classList.remove('miss'); iterator.classList.remove('ship'); iterator.classList.remove('dead');
+  }
+
+  enemyPlayer.force.push(new Ship(enemyPlayer, 2), new Ship(enemyPlayer, 2));
+  enemyPlayer.force.push(new Ship(enemyPlayer, 3), new Ship(enemyPlayer, 3),);
+  enemyPlayer.force.push(new Ship(enemyPlayer, 4));
+
+  generateRandomShips(enemyPlayer);
+
+  renderBoard(enemyPlayer);
+
 }
 
 // end
@@ -94,7 +172,6 @@ function generateCurrentShip (ship, board) {
   while (!done) {
     let start = getRandomPosition(board);
     let shipDirection = Math.round(Math.random() * 3);
-    console.log(done);
 
     let shift = start;
 
@@ -115,14 +192,17 @@ function generateCurrentShip (ship, board) {
     }
     if (again) {continue};
 
+    let shipArr = [];
+    shipArr.push(start);
     let curPos = start;
     board[curPos] = 1;
 
     for(let i = 1; i < ship.size; i++) {
       curPos = shiftToNumberDirection(curPos, shipDirection);
       board[curPos] = 1;
-      ship.position.push(curPos);
+      shipArr.push(curPos);
     }
+    ship.setPosition(shipArr);
     done = true;
   }
 }
@@ -169,16 +249,12 @@ function shiftToNumberDirection(shift, direction) {
   switch (direction) {
     case 0:
       return shiftDirection.top(shift);
-      break;
     case 1:
       return shiftDirection.bottom(shift);
-      break;
     case 2:
       return shiftDirection.left(shift);
-      break;
     case 3:
       return shiftDirection.right(shift);
-      break;
     default:
       break;
   }
@@ -196,6 +272,10 @@ function clearBoard(board) {
   board.fill(0);
 }
 
+/**
+ * Перерисовывает HTML в соответствии с матрицей игрока
+ * @param {object} player 
+ */
 function renderBoard(player) {
   player.board.map((element, index)=>{
     if(element == 0) {
@@ -229,14 +309,28 @@ enemyPlayer.boardHTML.addEventListener('click', (e) => {
     eIndex++;
   }
 
-  e.target.classList.add('miss');
   if(enemyPlayer.board[eIndex] == 0) {
+    e.target.classList.add('miss');
+    enemyTurn();
   }
 
   if(enemyPlayer.board[eIndex] == 1) {
     e.target.classList.add('dead');
+
+    let curShip = false;
+
+    for (const ship of enemyPlayer.force) {
+      for (const pos of ship.position) {
+        if(pos.pos === eIndex) {
+          curShip = ship;
+          break;
+        }
+      }
+      if(curShip) {break};
+    }
+
+    curShip.hitted(eIndex);
   }
-  enemyTurn();
 })
 
 
@@ -247,9 +341,26 @@ enemyPlayer.boardHTML.addEventListener('click', (e) => {
 // Enemy turn
 
 function enemyTurn() {
-  let shot = Math.round(Math.random() * 128);
+  let shot = Math.round(Math.random() * 98 + 16);
   if(mainPlayer.board[shot] == 1) {
     mainPlayer.boardHTML.children[shot].classList.add('dead');
+
+    let curShip = false;
+
+    for (const ship of mainPlayer.force) {
+      for (const pos of ship.position) {
+        if(pos.pos === shot) {
+          curShip = ship;
+          break;
+        }
+      }
+      if(curShip) {break};
+    }
+
+    curShip.hitted(shot);
+
+    enemyTurn();
+    return;
   } else if(mainPlayer.board[shot] == 2) {
     enemyTurn(); return;
   } else if (mainPlayer.board[shot] == 0) {
@@ -259,9 +370,7 @@ function enemyTurn() {
 }
 
 
-
+////////////////////////////////////////////////////////////////
+// start game
 
 initializationGameData();
-// generateRandomShips(mainPlayer);
-// generateRandomShips(enemyPlayer);
-// renderBoard(mainPlayer);
